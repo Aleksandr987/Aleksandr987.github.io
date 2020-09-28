@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="TweenMax.js"></script>
+  <style>
+    main{
+      position: absolute;
+      top: 200px;
+      left: 200px;
+      width: 400px;
+      height: 300px;
+      overflow: hidden;
+      border: 1px solid red;
+    }
+    .slide{
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 380px;
+      height: 280px;
+      background: aliceblue;
+      z-index: 0;
+      border: 1px solid blue;
+    }
+    .slide:not(#firstSlide){
+      display: none;
+    }
+
+    /*Стили навигации*/
+    .slide-arrow{ position: absolute; width: 50px; height: 50px; background: bisque; }
+    #topButton{ top: 0; left: 175px; }
+    #bottom{ bottom: 0; left: 175px; }
+    #left{ top: 125px; left: 0; }
+    #right{ top: 125px; right: 0; }
+
+  </style>
+</head>
+<body>
+  <main>
+    <div id="firstSlide" class="slide" data-cd="000-000-000"><img src="image/1.png"></div>
+    <div class="slide" data-cd="001-000-000"><img src="image/2.png"></div>
+    <div class="slide" data-cd="002-000-000"><img src="image/3.png"></div>
+    <div class="slide" data-cd="000-001-000"><img src="image/5.png"></div>
+    <div class="slide" data-cd="002-001-000"><img src="image/7.png"></div>
+    <div class="slide" data-cd="000-002-000"><img src="image/9.png"></div>
+    <div class="slide" data-cd="001-002-000"><img src="image/10.png"></div>
+    <div class="slide" data-cd="002-002-000"><img src="image/11.png"></div>
+    <div class="slide" data-cd="003-001-000"><img src="image/8.png"></div>
+    <div id="topButton" class="slide-arrow"></div>
+    <div id="bottom" class="slide-arrow"></div>
+    <div id="left" class="slide-arrow"></div>
+    <div id="right" class="slide-arrow"></div>
+  </main>
+</body>
+<script>
+
+  let slide = document.getElementsByClassName('slide');
+
+  let xCoord = [];
+  let yCoord = [];
+  let zCoord = [];
+  let flipSlide = false; // Переменная показывает есть ли куда перемещаться слайду в данный момент (только показывает, но не запрещает - запрет в другом месте)
+  let relevantSlide = slide[0]; // Переменная содержит тякущий слайд
+  let clickingIsAllowed = true; // Переменная запрещаем следующее перелистывание до окончания тякущего
+
+  bottom.onclick =function(){
+    muveFunction(0, 1, 'bottom', "Нет слайда ниже!");
+  };
+
+  topButton.onclick =function(){
+    muveFunction(0, -1, 'top', "Нет слайда выше!");
+  };
+
+  right.onclick =function(){
+    muveFunction(1, 0, 'right', "Нет слайда правее!");
+  };
+
+  left.onclick =function(){
+    muveFunction(-1, 0, 'left', "Нет слайда левее!");
+  };
+
+  function muveFunction(x, y, direction, prohibition) {
+    if(clickingIsAllowed){ // Проверяем окончилось ли прошлое перелистывание
+      let relevantSlideXCoord = Number(relevantSlide.dataset.cd.substr(0, 3));
+      let relevantSlideYCoord = Number(relevantSlide.dataset.cd.substr(4, 3));
+      let relevantSlideZCoord = Number(relevantSlide.dataset.cd.substr(8, 3));
+      for(let i = 0; i < slide.length; i++){
+        xCoord[i] = Number(slide[i].dataset.cd.substr(0, 3));
+        yCoord[i] = Number(slide[i].dataset.cd.substr(4, 3));
+        zCoord[i] = Number(slide[i].dataset.cd.substr(8, 3));
+        if(relevantSlideXCoord+x == xCoord[i]  && relevantSlideYCoord+y == yCoord[i] && relevantSlideZCoord == zCoord[i]){
+          clickingIsAllowed = false; // Запрещаем следующее перелистывание до окончания тякущего
+          flipSlide = true;
+          slide[i].style.display = 'block';
+          slide[i].style.zIndex = '-1';
+          if(direction == 'left'){
+            TweenMax.to(relevantSlide, 1, {x:400});
+            TweenMax.to(slide[i], .1, {zIndex:0, delay:1});
+            TweenMax.to(relevantSlide, .1, {display:'none', delay:1});
+            TweenMax.to(relevantSlide, .1, {x:0, delay:1.1});
+          }
+          else if(direction == 'right'){
+            TweenMax.to(relevantSlide, 1, {x:-400});
+            TweenMax.to(slide[i], .1, {zIndex:0, delay:1});
+            TweenMax.to(relevantSlide, .1, {display:'none', delay:1});
+            TweenMax.to(relevantSlide, .1, {x:0, delay:1.1});
+          }
+          else if(direction == 'top'){
+            TweenMax.to(relevantSlide, 1, {y:300});
+            TweenMax.to(slide[i], .1, {zIndex:0, delay:1});
+            TweenMax.to(relevantSlide, .1, {display:'none', delay:1});
+            TweenMax.to(relevantSlide, .1, {y:0, delay:1.1});
+          }
+          else if(direction == 'bottom'){
+            TweenMax.to(relevantSlide, 1, {y:-300});
+            TweenMax.to(slide[i], .1, {zIndex:0, delay:1});
+            TweenMax.to(relevantSlide, .1, {display:'none', delay:1});
+            TweenMax.to(relevantSlide, .1, {y:0, delay:1.1});
+          }
+          relevantSlide = slide[i];
+          setTimeout(function (){clickingIsAllowed = true}, 1100); // Разрешаем следующее перелистывание
+        }
+      }
+      if(flipSlide){flipSlide = false}
+      else {alert(prohibition)}
+    }
+  }
+
+</script>
+</html>
